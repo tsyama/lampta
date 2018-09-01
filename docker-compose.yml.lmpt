@@ -1,0 +1,52 @@
+version: '2'
+
+volumes:
+  db-data:
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=<<??>>
+    volumes:
+      - "db-data:/var/lib/mysql"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+  proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "./proxy/certs:/etc/nginx/certs"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    restart: always
+  web:
+    build: ./web/
+    volumes:
+      - "./web/html:/var/www/html/"
+    links:
+      - db
+    environment:
+      VIRTUAL_HOST: local-<<??>>.com
+      CERT_NAME: docker
+      HTTPS_METHOD: noredirect
+  pma:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    links:
+      - db
+    environment:
+      VIRTUAL_HOST: pma.local-<<??>>.com
+      CERT_NAME: docker
+      HTTPS_METHOD: noredirect
+  smtp:
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+    environment:
+      VIRTUAL_HOST: mail.local-<<??>>.com
+      HTTPS_METHOD: noredirect
+      VIRTUAL_PORT: 1080
