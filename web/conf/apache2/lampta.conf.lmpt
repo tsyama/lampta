@@ -1,6 +1,6 @@
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
-	DocumentRoot /var/www/html/<<??>>/
+	DocumentRoot /var/www/html/<<??>>/webroot/
     ServerName local-<<??>>.com
 
 	<Directory /var/www/html/<<??>>/>
